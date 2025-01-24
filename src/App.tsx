@@ -29,7 +29,7 @@ function App() {
       })
       .then(function (response) {
         setResponseData(response.data);        
-        console.log('response.data', response.data);
+        // console.log('response.data', response.data);
       })
       .catch(function (error) {
         console.log('err', error);        
@@ -47,7 +47,7 @@ function App() {
                   usdValue: 0,
                   btcValue: 0,
                   bananaValue: 0,
-                  coins: [{ 'USD':10, 'BTC':0.1, 'XRP':5000,  }], 
+                  coins: [{ 'USD':10, 'XLM':2000, 'XRP':3000,  }], 
                   coinData:[],
                 }, 
                 {   id : 1,
@@ -58,7 +58,7 @@ function App() {
                     bananaValue: 0,
                     // coins: [{ 'BTC':0.3, 'XRP':1300, 'THETA':1600 }], 
                     // coins: [{ 'BTC':0.1, 'XRP':5000, 'THETA':8000, 'TFUEL':12000, 'LTC':6, 'BCH':1, 'DGB':75000, 'ADA':6000, 'DOGE':14000, 'XLM':5000, 'SHIB':10000000  }], 
-                    coins: [{ 'BTC':0.1, 'XRP':5000, 'THETA':8000, 'TFUEL':12000, 'LTC':6, 'BCH':1, 'DGB':75000, 'ADA':6000, 'DOGE':14000  }], 
+                    coins: [{ 'BTC':0.107, 'XRP':6000, 'THETA':8000, 'ADA':6500, 'DOGE':14000, 'FET':800 }], 
                     // coins: [{ 'CAD':100 }], 
                     // coins: [{ 'USD':100, 'CAD':100 }], 
                     coinData:[],
@@ -77,19 +77,51 @@ function App() {
               ])
               
 
-    // getOHLCV();
+    getOHLCV();
 
   }, []);
 
 
+
+  function getOHLCV(){
+
+    const API_KEY = '0B36A2B5-67CC-4D92-8B26-55BCC3644F35';
+    const BASE_URL = 'https://rest.coinapi.io/v1/ohlcv';
+  
+    
+    async function getOHLCVData(symbol: string, period: string, timeStart: string, timeEnd: string) {
+      axiosRetry(axios, { retries: 3 }); 
+      try {
+        const response = await axios.get(`${BASE_URL}/${symbol}/history`, {
+          headers: {
+            'X-CoinAPI-Key': API_KEY
+          },
+          params: {
+            period_id: period,
+            time_start: timeStart,
+            time_end: timeEnd
+          }
+        });
+    
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching OHLCV data:', error);
+      }
+    }
+    
+    // Example usage
+    getOHLCVData('BTC/USD', '1DAY', '2022-01-01T00:00:00', '2022-12-31T00:00:00');
+
+  }
+
   // function getOHLCV(){
-  //   const coinAPIKey = '0B36A2B5-67CC-4D92-8B26-55BCC3644F35'; // replace with your CoinAPI key
+  //   // const coinAPIKey = '0B36A2B5-67CC-4D92-8B26-55BCC3644F35'; // replace with your CoinAPI key
   //   const cryptoSymbol = 'BTC'; // replace with the symbol of the cryptocurrency you want to track
   //   // const periods = ['1DAY', '3DAY', '7DAY', '30DAY']; // periods to track
   //   const periods = ['30DAY']; // periods to track
   
   //   periods.forEach(period => {
-  //     // const url = `https://rest.coinapi.io/v1/ohlcv/${cryptoSymbol}/USD/history?period_id=${period}&limit=1&apikey=${coinAPIKey}`;
+  //     const url = `https://rest.coinapi.io/v1/ohlcv/${cryptoSymbol}/USD/history?period_id=${period}&limit=1&apikey=${coinAPIKey}`;
   //     // const url = `https://rest.coinapi.io/v1/ohlcv/BTC/history`;
   //     // https://rest.coinapi.io/v1/ohlcv/BTC/history?period_id=2MTH&limit=1&apikey=0B36A2B5-67CC-4D92-8B26-55BCC3644F35
       
@@ -106,12 +138,15 @@ function App() {
   //         console.log('err', error);        
   //       })
   //       .finally(function () {
-  
+  //         console.log('finally?')
   //       });      
   //   });    
   // }
 
   
+
+
+
 
   return (
     <div className="App">
@@ -143,8 +178,29 @@ function App() {
 
     </div>
   );
+
+
 }
 
 
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

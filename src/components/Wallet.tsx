@@ -49,7 +49,7 @@ const Wallet: React.FC<any> = ({ wallet }) => {
     copy[wallet.id].coinData = coinData;
 
     const walletTotal = getUsdTotal();
-    const bittyTotal = getBtcTotal() ? getBtcTotal().toFixed(3) +` ₿` : `0 ₿`;
+    const bittyTotal = getBtcTotal() ? `₿`+getBtcTotal().toFixed(3) : `₿0`;
 
     function getRawUSD() {
         let num = 0;
@@ -58,7 +58,7 @@ const Wallet: React.FC<any> = ({ wallet }) => {
             let amt = Object(coin[1]).myAmount;
             let tot = usd * amt;
             num += isNaN(tot) ? 0 : tot;    
-        });
+        }); 
         return num;
     }
 
@@ -90,12 +90,14 @@ const Wallet: React.FC<any> = ({ wallet }) => {
         <div className='border p-1 m-1'>
             <div>{wallet.name}</div>
             <div className="text-gray-500">{wallet.description}</div>
-            <div 
-                className='text-xl font-bold rounded-full w-32 h-32 m-auto my-2   
-                flex justify-center items-center 
-                bg-gradient-to-t from-gray-300 to-gray-100'
-                // bg-gradient-to-t from-yellow-400 to-yellow-200 
-                >{walletTotal}<br />{bittyTotal}</div>
+            
+            <div className='text-xl font-bold rounded-full w-32 h-32 m-auto my-2   
+                            flex justify-center items-center 
+                            bg-gradient-to-t from-gray-300 to-gray-100
+                            '
+                            // bg-gradient-to-t from-yellow-400 to-yellow-200 
+                    >{walletTotal}<br />{bittyTotal}
+            </div>
 
             <div className="">
                 {

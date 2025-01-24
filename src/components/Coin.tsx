@@ -24,8 +24,8 @@ const Coin: React.FC<any> = ({ name, amount }) => {
 
     const storedData = useRecoilValue(StoredResponseData);
     const capsName = name.toUpperCase();
-    const thisCoin = Object.values(storedData).filter(v => v.asset_id == name);
-    const thisValBTC = 0; // CALCULATE VALUE IN BITCOIN.
+    const thisCoin = Object.values(storedData).filter(v => v.asset_id === name);
+    // const thisValBTC = 0; // CALCULATE VALUE IN BITCOIN.
     const thisValBANANAS = 0; // CALCULATE VALUE IN BANANAS.
     const isCrypto = thisCoin[0] ? thisCoin[0].type_is_crypto : undefined ;
     
@@ -34,13 +34,13 @@ const Coin: React.FC<any> = ({ name, amount }) => {
         return responseData[num];
     }
 
-    // const coinData:any = getCoinData(responseData, 'BTC');
-    // console.log(coinData);
-
+    const coinData:any = getCoinData(responseData, 'BTC');
+    const currentBTC:number = coinData?.price_usd;
+    console.log(coinData);
 
     const thisValUSD = () => {
         if(thisCoin[0]){
-            if (thisCoin[0].asset_id == "USD") {
+            if (thisCoin[0].asset_id === "USD") {
                 return (amount * 1)
             }else{
                 return (amount * thisCoin[0].price_usd)
@@ -49,10 +49,30 @@ const Coin: React.FC<any> = ({ name, amount }) => {
             return 0
         }
     }
+    
+    const roundToTwoNonZeroDecimals = (num: number) => {
+        const str = num.toString();
+        const [integerPart, decimalPart] = str.split('.');
+        if (!decimalPart) return num;
+        
+        let nonZeroCount = 0;
+        let roundedDecimal = '';
+        
+        for (let i = 0; i < decimalPart.length; i++) {
+          if (decimalPart[i] !== '0') nonZeroCount++;
+          roundedDecimal += decimalPart[i];
+          if (nonZeroCount === 2) break;
+        }
+        
+        return parseFloat(`${integerPart}.${roundedDecimal}`);
+    }
+    
+    const thisValBTC = roundToTwoNonZeroDecimals(thisValUSD() / currentBTC);
+    console.log('thisValBTC', thisValBTC);
 
     const isUSD = () => {
         if(thisCoin[0]){
-            if (thisCoin[0].asset_id == "USD") {
+            if (thisCoin[0].asset_id === "USD") {
                     return true
             }else{
                 return false
@@ -64,7 +84,7 @@ const Coin: React.FC<any> = ({ name, amount }) => {
 
     const perUSD = () => {
         if(thisCoin[0]){
-            if (thisCoin[0].asset_id == "USD") {
+            if (thisCoin[0].asset_id === "USD") {
                     return 1
             }else{
                 return thisCoin[0].price_usd
@@ -85,7 +105,16 @@ const Coin: React.FC<any> = ({ name, amount }) => {
             currencyDisplay: "narrowSymbol",
         // }).format( thisCoin[0] ? thisCoin[0].price_usd : 0 );    
         }).format( thisCoin[0] ? perUSD() : 0 );    
-    
+ 
+    // const prettyUsdPerCoin:any = (usdPerCoin) => {
+    //     let num = usdPerCoin;
+    //     if (num >= 1000) {
+    //         return `$${(num / 1000).toFixed(1)} K`;
+    //     }
+    //     return `$${num}`;
+    // }
+        
+
     const prettyUSD = new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
@@ -95,20 +124,24 @@ const Coin: React.FC<any> = ({ name, amount }) => {
         // }).format( thisValUSD() )
         }).format( thisValUSD() )
     
-
-
+    
+   
         
     return (
         <div className='border rounded inline-block bg-gray-100 p-1 m-0.5'>
             
             <div>
                 <strong>{capsName}</strong>
-                <br/>
-                {prettyAmount}
+                {/* <br/> */}
+                {/* {prettyUsdPerCoin}  */}
                 <br/>
                 {usdPerCoin} 
                 <br/>
+                {prettyAmount}
+                <br/>
                 {prettyUSD ? <><hr /><strong>{prettyUSD}</strong></> : null }
+                <br />
+                <strong>₿</strong>{thisValBTC}  
             </div>
 
         </div>
