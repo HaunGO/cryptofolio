@@ -68,8 +68,7 @@ const Coin: React.FC<any> = ({ name, amount }) => {
     }
     
     const thisValBTC = roundToTwoNonZeroDecimals(thisValUSD() / currentBTC);
-    console.log('thisValBTC', thisValBTC);
-
+    
     const isUSD = () => {
         if(thisCoin[0]){
             if (thisCoin[0].asset_id === "USD") {
@@ -106,15 +105,6 @@ const Coin: React.FC<any> = ({ name, amount }) => {
         // }).format( thisCoin[0] ? thisCoin[0].price_usd : 0 );    
         }).format( thisCoin[0] ? perUSD() : 0 );    
  
-    // const prettyUsdPerCoin:any = (usdPerCoin) => {
-    //     let num = usdPerCoin;
-    //     if (num >= 1000) {
-    //         return `$${(num / 1000).toFixed(1)} K`;
-    //     }
-    //     return `$${num}`;
-    // }
-        
-
     const prettyUSD = new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
