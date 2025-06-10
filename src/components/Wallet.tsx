@@ -11,8 +11,8 @@ import {
 import Coin from './Coin'
 
 import { Billfolds, StoredResponseData } from '../atoms';
+import { getBananaTotal } from '../utils/utils';
 
-import { something, someNumber, getBananaTotal } from '../utils/utils';
 
 type Props = {
     // wallet: {coins:[]},
@@ -46,15 +46,12 @@ const Wallet: React.FC<any> = ({ wallet }) => {
 
     const copy = JSON.parse(JSON.stringify(wallets));    
     copy[wallet.id].usdValue = getUsdTotal();
-    const walletTotal = getUsdTotal();
-
-
     copy[wallet.id].btcValue = getBtcTotal();
-    
-    copy[wallet.id].bananaValue = getBananaTotal(walletTotal);
+    // copy[wallet.id].bananaValue = getBananaTotal();
     copy[wallet.id].coinData = coinData;
 
-    const bittyTotal = getBtcTotal() ? `₿`+getBtcTotal().toFixed(3) : `₿0`;
+    const walletTotal = getUsdTotal();
+    const bittyTotal = getBtcTotal() ? `₿ ` + getBtcTotal().toFixed(3) : `₿0`;
 
     function getRawUSD() {
         let num = 0;
@@ -66,12 +63,6 @@ const Wallet: React.FC<any> = ({ wallet }) => {
         }); 
         return num;
     }
-
-
-    const inBananas = getBananaTotal(getRawUSD());
-
-
-
 
     function getUsdTotal(){
         let usd = getRawUSD();
@@ -92,23 +83,21 @@ const Wallet: React.FC<any> = ({ wallet }) => {
         return TotalInBitty
     }
 
+    const bananaTotal = getBananaTotal(getRawUSD());
+
+    console.log('bananaTotal', bananaTotal);    
+
     return (
         <div className='border p-1 m-1'>
             <div>{wallet.name}</div>
             <div className="text-gray-500">{wallet.description}</div>
-            
-            <div className='text-xl font-bold rounded-full w-32 h-32 m-auto my-2   
-                            flex justify-center items-center 
-                            bg-gradient-to-t from-gray-300 to-gray-100 ' >
-                    {walletTotal}<br />{bittyTotal}
-                <br />
-                {/* {something()} */}
-                {/* {someNumber(5)} */}
-                {inBananas} 
-                {/* // banana emoji */}
-
-                {/* console.log(getBananaTotal(getUsdTotal)) */}
-            </div>
+            <div 
+                className='text-xl font-bold rounded-full w-32 h-32 m-auto my-2   
+                flex justify-center items-center 
+                bg-gradient-to-t from-gray-300 to-gray-100'
+                // bg-gradient-to-t from-yellow-400 to-yellow-200 
+                >{walletTotal}<br />{bittyTotal}<br/>🍌{bananaTotal}
+                </div>
 
             <div className="">
                 {
@@ -122,3 +111,35 @@ const Wallet: React.FC<any> = ({ wallet }) => {
 };
 
 export default Wallet; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
