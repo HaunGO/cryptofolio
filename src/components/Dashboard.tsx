@@ -52,7 +52,7 @@ const Dashboard: React.FC = () => {
     };    
 
     return (     
-        <div className='bg-gray-300 w-3/12 h-full p-2 absolute right-0 top-0'>            
+        <div className='bg-gray-300 w-3/12 h-auto p-2 absolute right-0 top-0'>            
             <p>(via recoil atom)</p>
             { 
                 wallets.map((w) => {
@@ -60,15 +60,8 @@ const Dashboard: React.FC = () => {
 
                         <p><strong>{w.name}</strong></p>
                         <p><i>{w.description}</i></p>
-                        <div>
-                            <select name="" id="">
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select> : &nbsp;
-                            <input type="number" /></div>
-                        {   
-                            Object.entries(w.coins[0]).map(([key, value], index) => (
+                        
+                        {Object.entries(w.coins[0]).map(([key, value], index) => (
                                 
                                 <div key={index}>{key} : 
                                                 

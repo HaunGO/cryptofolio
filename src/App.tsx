@@ -1,188 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { StoredResponseData, Billfolds } from './atoms';
+import { 
+  initializeAppData,
+  STORAGE_KEYS,
+  isSessionDataValid
+} from './services/api';
 import Portfolio from './components/Portfolio';
+import { Wallet as WalletType } from './types';
+import './App.css';
+import walletsDataRaw from './private/wallets.private.json';
 
-import { RecoilRoot, atom, selector, useRecoilState, useRecoilValue, } from 'recoil';
-
-import {myCoins, Billfolds, StoredResponseData} from './atoms';
-
+const walletsData = walletsDataRaw as WalletType[];
 
 function App() {
-
-  const [coins, setCoins] = useRecoilState(myCoins);
   const [wallets, setWallets] = useRecoilState(Billfolds);
-  const [responsData, setResponseData] = useRecoilState(StoredResponseData);
-
-
+  const [responseData, setResponseData] = useRecoilState(StoredResponseData);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-
-    async function fetchExchangeRates() {
-      axiosRetry(axios, { retries: 3 });
-      axios.get('https://rest.coinapi.io/v1/assets/', {
-        params: {
-          apikey: '0B36A2B5-67CC-4D92-8B26-55BCC3644F35'
-        }
-      })
-      .then(function (response) {
-        setResponseData(response.data);        
-        // console.log('response.data', response.data);
-      })
-      .catch(function (error) {
-        console.log('err', error);        
-      })
-      .finally(function () {
-        // always executed
-      });
-    }
-    
-    fetchExchangeRates();
-
-    setWallets([{ id : 0,
-                  name : 'Primary Billfold', 
-                  description:'नमूना वॉलेट एक',
-                  usdValue: 0,
-                  btcValue: 0,
-                  bananaValue: 0,
-                  coins: [{ 'USD':10, 'XLM':2000, 'XRP':3000,  }], 
-                  coinData:[],
-                }, 
-                {   id : 1,
-                    name : "Second Billfold", 
-                    description:'Sample second',
-                    usdValue: 0,
-                    btcValue: 0,
-                    bananaValue: 0,
-                    // coins: [{ 'BTC':0.3, 'XRP':1300, 'THETA':1600 }], 
-                    // coins: [{ 'BTC':0.1, 'XRP':5000, 'THETA':8000, 'TFUEL':12000, 'LTC':6, 'BCH':1, 'DGB':75000, 'ADA':6000, 'DOGE':14000, 'XLM':5000, 'SHIB':10000000  }], 
-                    coins: [{ 'BTC':0.107, 'XRP':6000, 'THETA':8000, 'ADA':6500, 'DOGE':14000, 'FET':800 }], 
-                    // coins: [{ 'CAD':100 }], 
-                    // coins: [{ 'USD':100, 'CAD':100 }], 
-                    coinData:[],
-                },
-                {   id : 2, 
-                    name : "Third Billfold", 
-                    description:'Thrice Great ',
-                    usdValue: 0,
-                    btcValue: 0,
-                    bananaValue: 0,
-                    coins: [{ 'BTC':0.01}], 
-                    // coins: [{ 'BTC':0.1, 'XRP':5000, 'THETA':8000, 'LTC':6, 'BCH':1, 'DGB':75000, 'ADA':8000, 'DOGE':14000, 'XLM':5000, 'SHIB':10000000  }], 
-                    // coins: [{ USD:1, CAD:2 }], 
-                    coinData:[],
-                  }
-              ])
-              
-
-    getOHLCV();
-
-  }, []);
-
-
-
-  function getOHLCV(){
-
-    const API_KEY = '0B36A2B5-67CC-4D92-8B26-55BCC3644F35';
-    const BASE_URL = 'https://rest.coinapi.io/v1/ohlcv';
-  
-    
-    async function getOHLCVData(symbol: string, period: string, timeStart: string, timeEnd: string) {
-      axiosRetry(axios, { retries: 3 }); 
+    // Initialize app with a single API call and wallet data load
+    async function initializeApp() {
       try {
-        const response = await axios.get(`${BASE_URL}/${symbol}/history`, {
-          headers: {
-            'X-CoinAPI-Key': API_KEY
-          },
-          params: {
-            period_id: period,
-            time_start: timeStart,
-            time_end: timeEnd
+        setIsLoading(true);
+        
+        // 1. Load wallets from JSON and store in sessionStorage
+        setWallets(walletsData);
+        sessionStorage.setItem('wallets', JSON.stringify(walletsData));
+        console.log('💼 Loaded wallet data from JSON file');
+        
+        // 2. Check if we already have cached coin data
+        if (isSessionDataValid(STORAGE_KEYS.ALL_COINS)) {
+          console.log('💰 Using cached coin data - NO API calls needed');
+          const coinData = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.ALL_COINS) || '[]');
+          setResponseData(coinData);
+        } else {
+          // 3. Make a SINGLE API call to get ALL coin data
+          console.log('📡 Making a SINGLE API call to get all coin data');
+          const success = await initializeAppData();
+          
+          if (success) {
+            // Load the pre-fetched data into state
+            const coinData = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.ALL_COINS) || '[]');
+            setResponseData(coinData);
+            console.log(`✅ Successfully loaded data for ${coinData.length} coins`);
           }
-        });
-    
-        console.log(response.data);
+        }
       } catch (error) {
-        console.error('Error fetching OHLCV data:', error);
+        console.error("❌ Error initializing app:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     
-    // Example usage
-    getOHLCVData('BTC/USD', '1DAY', '2022-01-01T00:00:00', '2022-12-31T00:00:00');
-
-  }
-
-  // function getOHLCV(){
-  //   // const coinAPIKey = '0B36A2B5-67CC-4D92-8B26-55BCC3644F35'; // replace with your CoinAPI key
-  //   const cryptoSymbol = 'BTC'; // replace with the symbol of the cryptocurrency you want to track
-  //   // const periods = ['1DAY', '3DAY', '7DAY', '30DAY']; // periods to track
-  //   const periods = ['30DAY']; // periods to track
-  
-  //   periods.forEach(period => {
-  //     const url = `https://rest.coinapi.io/v1/ohlcv/${cryptoSymbol}/USD/history?period_id=${period}&limit=1&apikey=${coinAPIKey}`;
-  //     // const url = `https://rest.coinapi.io/v1/ohlcv/BTC/history`;
-  //     // https://rest.coinapi.io/v1/ohlcv/BTC/history?period_id=2MTH&limit=1&apikey=0B36A2B5-67CC-4D92-8B26-55BCC3644F35
-      
-  //     axiosRetry(axios, { retries: 3 }); 
-  
-  //     axios.get(url)
-  //       .then(function (response) {
-  //         const latestData = response.data[0];
-  //         const priceChange = latestData.price_close - latestData.price_open;
-  
-  //         console.log(`Price change for ${cryptoSymbol} over the last ${period}: ${priceChange}`);
-  //       })
-  //       .catch(function (error) {
-  //         console.log('err', error);        
-  //       })
-  //       .finally(function () {
-  //         console.log('finally?')
-  //       });      
-  //   });    
-  // }
-
-  
-
-
-
+    initializeApp();
+  }, []);
 
   return (
     <div className="App">
-        {/* <Portfolio title="This Portfolio" coins={coins} wallets={wallets} /> */}
-        
-        
-        
-        
-
-
-
-
-
+      {isLoading ? (
+        <div className="flex items-center justify-center h-screen">
+          <h2 className="text-xl font-semibold">Loading Cryptofolio...</h2>
+        </div>
+      ) : (
         <Portfolio />
-
-
-
-
-
-
-     
-        {/* <div className='absolute bottom-1 flex  justify-start p-1'>Coins:  */}
-          {/* {Object.entries(coins[0]).map(( [key, val] ) => ( */}
-          {/* {Object.entries(coins).map(( [key, val] ) => ( */}
-            {/* <span key={key} className="bg-gray-100 m-1 p-1"><strong>{key}:</strong> {val}</span>         */}
-          {/* ))}       */}
-        {/* </div> */}
-
-
+      )}
     </div>
   );
-
-
 }
-
-
 
 export default App;
 

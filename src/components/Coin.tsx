@@ -1,139 +1,72 @@
-import React, {useEffect} from 'react';
-// import axios from 'axios';
-import {
-    RecoilRoot,
-    atom,
-    selector,
-    useRecoilState,
-    useRecoilValue,
-  } from 'recoil';
-  
-
-// import { myCoins } from '../atoms';
+import React, { useMemo } from 'react';
+import { useRecoilValue } from 'recoil';
 import { StoredResponseData } from '../atoms';
+import { CoinProps, CoinData } from '../types';
+import { roundToTwoNonZeroDecimals, formatCurrency, formatAmount, getBananaTotal, getEggTotal, calculateCoinUSDValue } from '../utils/utils';
 
-const Coin: React.FC<any> = ({ name, amount }) => {
-    
-    const [responseData] = useRecoilState(StoredResponseData);
-
-
-    useEffect(() => {
-        // console.log('onMount');
-        
-    }, []);
-
+const Coin: React.FC<CoinProps> = ({ name, amount }) => {
     const storedData = useRecoilValue(StoredResponseData);
     const capsName = name.toUpperCase();
-    const thisCoin = Object.values(storedData).filter(v => v.asset_id === name);
-    // const thisValBTC = 0; // CALCULATE VALUE IN BITCOIN.
-    const thisValBANANAS = 0; // CALCULATE VALUE IN BANANAS.
-    const isCrypto = thisCoin[0] ? thisCoin[0].type_is_crypto : undefined ;
     
-    function getCoinData(obj:any, value:string): Object {
-        const num:any = Object.keys(obj).find(k => obj[k].asset_id === value);        
-        return responseData[num];
-    }
-
-    const coinData:any = getCoinData(responseData, 'BTC');
-    const currentBTC:number = coinData?.price_usd;
-    console.log(coinData);
-
-    const thisValUSD = () => {
-        if(thisCoin[0]){
-            if (thisCoin[0].asset_id === "USD") {
-                return (amount * 1)
-            }else{
-                return (amount * thisCoin[0].price_usd)
-            }
-        }else{
-            return 0
-        }
-    }
+    // Use find instead of filter for better performance
+    const thisCoin = useMemo(() => 
+        Object.values(storedData).find(v => v.asset_id === name),
+        [storedData, name]
+    );
     
-    const roundToTwoNonZeroDecimals = (num: number) => {
-        const str = num.toString();
-        const [integerPart, decimalPart] = str.split('.');
-        if (!decimalPart) return num;
-        
-        let nonZeroCount = 0;
-        let roundedDecimal = '';
-        
-        for (let i = 0; i < decimalPart.length; i++) {
-          if (decimalPart[i] !== '0') nonZeroCount++;
-          roundedDecimal += decimalPart[i];
-          if (nonZeroCount === 2) break;
-        }
-        
-        return parseFloat(`${integerPart}.${roundedDecimal}`);
-    }
+    // Get Bitcoin price for conversion
+    const btcCoin = useMemo(() => 
+        Object.values(storedData).find(v => v.asset_id === 'BTC'),
+        [storedData]
+    );
     
-    const thisValBTC = roundToTwoNonZeroDecimals(thisValUSD() / currentBTC);
-    console.log('thisValBTC', thisValBTC);
-
-    const isUSD = () => {
-        if(thisCoin[0]){
-            if (thisCoin[0].asset_id === "USD") {
-                    return true
-            }else{
-                return false
-            }
-        }else{
-            return null
-        }
-    }
-
-    const perUSD = () => {
-        if(thisCoin[0]){
-            if (thisCoin[0].asset_id === "USD") {
-                    return 1
-            }else{
-                return thisCoin[0].price_usd
-            }
-        }else{
-            return null
-        }
-    }
+    const currentBTC = btcCoin?.price_usd || 0;
     
-    const prettyAmount = new Intl.NumberFormat("en-US", {
-        // minimumFractionDigits: 0, 
-        // maximumFractionDigits: 0,
-        }).format(amount);
+    // Calculate values in different currencies
+    const thisValUSD = useMemo(() => {
+        if (!thisCoin) return 0;
+        return thisCoin.asset_id === "USD" ? amount : amount * thisCoin.price_usd;
+    }, [thisCoin, amount]);
     
-    const usdPerCoin = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            currencyDisplay: "narrowSymbol",
-        // }).format( thisCoin[0] ? thisCoin[0].price_usd : 0 );    
-        }).format( thisCoin[0] ? perUSD() : 0 );    
- 
-
-    const prettyUSD = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            currencyDisplay: "narrowSymbol",
-            minimumFractionDigits: 0, 
-            maximumFractionDigits: 0,
-        // }).format( thisValUSD() )
-        }).format( thisValUSD() )
+    const thisValBTC = useMemo(() => 
+        currentBTC ? roundToTwoNonZeroDecimals(thisValUSD / currentBTC) : 0,
+        [thisValUSD, currentBTC]
+    );
     
+    // Calculate values in bananas and eggs
+    const thisValBANANAS = useMemo(() => getBananaTotal(thisValUSD), [thisValUSD]);
+    const thisValEGGS = useMemo(() => getEggTotal(thisValUSD), [thisValUSD]);
     
-   
-        
+    // Determine price per unit
+    const perUSD = useMemo(() => 
+        thisCoin ? (thisCoin.asset_id === "USD" ? 1 : thisCoin.price_usd) : 0,
+        [thisCoin]
+    );
+    
+    // Format values for display
+    const prettyAmount = formatAmount(amount);
+    const usdPerCoin = formatCurrency(perUSD, 'USD', 2, 8);
+    const prettyUSD = formatCurrency(thisValUSD, 'USD');
+    
+    // Calculate USD value using the new utility function
+    const usdValue = calculateCoinUSDValue(name, amount, storedData);
+    const formattedValue = formatCurrency(usdValue, 'USD', 2);
+    
     return (
-        <div className='border rounded inline-block bg-gray-100 p-1 m-0.5'>
-            
+        <div className='border rounded inline-block bg-gray-100 p-1 m-0.5 hover:shadow-md transition-shadow'>
             <div>
-                <strong>{capsName}</strong>
+                <span>{prettyAmount} {capsName}</span> 
                 <br/>
-                {usdPerCoin} 
-                <br/>
-                {prettyAmount}
-                <br/>
-                {prettyUSD ? <><hr /><strong>{prettyUSD}</strong></> : null }
+                {usdPerCoin}                 
+                <br/><hr />
+                {prettyUSD}
                 <br />
-                <strong>₿</strong>{thisValBTC}  
+                ₿{thisValBTC}  
+                {/* <br /> */}
+                {/* <strong>🍌</strong>{thisValBANANAS} */}
+                {/* <br /> */}
+                {/* <strong>🥚</strong>{thisValEGGS} */}
             </div>
-
         </div>
     );
 };
