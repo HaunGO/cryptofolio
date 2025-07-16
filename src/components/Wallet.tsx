@@ -34,12 +34,23 @@ const Wallet: React.FC<WalletProps> = ({ wallet, className = ''}) => {
     const coinData: any[] = [];
     
     Object.entries(wallet.coins[0]).forEach(([coinName, amount]) => {
-        const marketData = getCoinData(responseData, coinName);
-        if (marketData) {
+        // Handle USD as a special case since it's not in crypto API data
+        if (coinName.toUpperCase() === 'USD') {
             coinData.push({
-                ...marketData,
+                asset_id: 'USD',
+                name: 'US Dollar',
+                price_usd: 1, // 1 USD = 1 USD
                 myAmount: amount
             });
+        } else {
+            // Handle cryptocurrencies
+            const marketData = getCoinData(responseData, coinName);
+            if (marketData) {
+                coinData.push({
+                    ...marketData,
+                    myAmount: amount
+                });
+            }
         }
     });
 
@@ -63,10 +74,10 @@ const Wallet: React.FC<WalletProps> = ({ wallet, className = ''}) => {
                 {walletTotal}
                 <br />
                 {bittyTotal}<br/>
-                {/* 🍌{bananaTotal} */}
             </div>
 
             <div >
+            {/* <table className="w-full text-left"> */}
                 {
                     Object.entries(wallet.coins[0]).map(([key, value]) => (
                         <Coin key={key} name={key} amount={Number(value)} />

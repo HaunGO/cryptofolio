@@ -27,6 +27,7 @@ export interface Wallet {
   id: number;
   name: string;
   description: string;
+  disabled: boolean;
   coins: Record<string, number>[];
   coinData: CoinData[];
   usdValue: number;

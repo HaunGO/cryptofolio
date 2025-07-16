@@ -28,12 +28,25 @@ export const someNumber = (num: number): number => {
 
 /**
  * Calculates the equivalent value in bananas
- * @param num - The USD amount to convert to bananas
+ * Based on average banana price of $0.15 per banana
+ * @param usdValue - The USD amount to convert to bananas
  * @returns The number of bananas (rounded to nearest whole banana)
  */
-export const getBananaTotal = (num: number): number => {
-    return Math.round(num * 0.20);
+export const getBananaTotal = (usdValue: number): number => {
+    const BANANA_PRICE_USD = 0.30;
+    return Math.round(usdValue / BANANA_PRICE_USD);
 }
+
+/**
+ * Calculates the equivalent value in eggs
+ * Based on average egg price of $0.25 per egg
+ * @param usdValue - The USD amount to convert to eggs
+ * @returns The number of eggs (rounded to nearest whole egg)
+ */
+export const getEggTotal = (usdValue: number): number => {
+    const EGG_PRICE_USD = 0.25;
+    return Math.round(usdValue / EGG_PRICE_USD);
+};
 
 
 /**
@@ -108,17 +121,6 @@ export const formatAmount = (amount: number): string => {
   return new Intl.NumberFormat("en-US").format(amount);
 };
 
-/**
- * Calculates the equivalent value in eggs
- * Based on average egg price of $0.25 per egg
- * @param usdValue - The USD amount to convert to eggs
- * @returns The number of eggs (rounded to nearest whole egg)
- */
-export const getEggTotal = (usdValue: number): number => {
-    const EGG_PRICE_USD = 0.25;
-    return Math.round(usdValue / EGG_PRICE_USD);
-};
-
 // Get coin data from response data array
 export function getCoinData(coinArray: CoinData[], symbol: string): CoinData | undefined {
   return coinArray.find(coin => coin.asset_id === symbol);
@@ -173,6 +175,28 @@ export function calculateCoinUSDValue(coinSymbol: string, amount: number, respon
   const coinData = getCoinData(responseData, coinSymbol);
   return coinData && coinData.price_usd ? coinData.price_usd * amount : 0;
 }
+
+/**
+ * Calculates the equivalent value in gold ounces
+ * Based on approximate gold price of $2000 per ounce
+ * @param usdValue - The USD amount to convert to gold ounces
+ * @returns The number of gold ounces (rounded to 4 decimal places)
+ */
+export const getGoldTotal = (usdValue: number): number => {
+    const GOLD_PRICE_USD = 2000;
+    return Math.round((usdValue / GOLD_PRICE_USD) * 10000) / 10000; // 4 decimal places
+};
+
+/**
+ * Calculates the equivalent value in silver ounces
+ * Based on approximate silver price of $25 per ounce
+ * @param usdValue - The USD amount to convert to silver ounces
+ * @returns The number of silver ounces (rounded to 2 decimal places)
+ */
+export const getSilverTotal = (usdValue: number): number => {
+    const SILVER_PRICE_USD = 25;
+    return Math.round((usdValue / SILVER_PRICE_USD) * 100) / 100; // 2 decimal places
+};
 
 
 

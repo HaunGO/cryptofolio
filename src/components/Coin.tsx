@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { StoredResponseData } from '../atoms';
 import { CoinProps, CoinData } from '../types';
-import { roundToTwoNonZeroDecimals, formatCurrency, formatAmount, getBananaTotal, getEggTotal, calculateCoinUSDValue } from '../utils/utils';
+import { roundToTwoNonZeroDecimals, formatCurrency, formatAmount, getBananaTotal, getEggTotal, getGoldTotal, getSilverTotal, calculateCoinUSDValue } from '../utils/utils';
 
 const Coin: React.FC<CoinProps> = ({ name, amount }) => {
     const storedData = useRecoilValue(StoredResponseData);
@@ -24,9 +24,14 @@ const Coin: React.FC<CoinProps> = ({ name, amount }) => {
     
     // Calculate values in different currencies
     const thisValUSD = useMemo(() => {
+        // Handle USD as a special case since it's not in crypto API data
+        if (name.toUpperCase() === "USD") {
+            return amount; // USD amount is already in USD
+        }
+        
         if (!thisCoin) return 0;
-        return thisCoin.asset_id === "USD" ? amount : amount * thisCoin.price_usd;
-    }, [thisCoin, amount]);
+        return amount * thisCoin.price_usd;
+    }, [thisCoin, amount, name]);
     
     const thisValBTC = useMemo(() => 
         currentBTC ? roundToTwoNonZeroDecimals(thisValUSD / currentBTC) : 0,
@@ -34,14 +39,22 @@ const Coin: React.FC<CoinProps> = ({ name, amount }) => {
     );
     
     // Calculate values in bananas and eggs
-    const thisValBANANAS = useMemo(() => getBananaTotal(thisValUSD), [thisValUSD]);
-    const thisValEGGS = useMemo(() => getEggTotal(thisValUSD), [thisValUSD]);
+    const thisValBANANAS = useMemo(() => getBananaTotal(thisValUSD).toLocaleString(), [thisValUSD]);
+    const thisValEGGS = useMemo(() => getEggTotal(thisValUSD).toLocaleString(), [thisValUSD]);
+    
+    // Calculate values in gold and silver
+    const thisValGOLD = useMemo(() => getGoldTotal(thisValUSD), [thisValUSD]);
+    const thisValSILVER = useMemo(() => getSilverTotal(thisValUSD), [thisValUSD]);
     
     // Determine price per unit
-    const perUSD = useMemo(() => 
-        thisCoin ? (thisCoin.asset_id === "USD" ? 1 : thisCoin.price_usd) : 0,
-        [thisCoin]
-    );
+    const perUSD = useMemo(() => {
+        // Handle USD as a special case
+        if (name.toUpperCase() === "USD") {
+            return 1; // 1 USD = 1 USD
+        }
+        
+        return thisCoin ? thisCoin.price_usd : 0;
+    }, [thisCoin, name]);
     
     // Format values for display
     const prettyAmount = formatAmount(amount);
@@ -49,26 +62,41 @@ const Coin: React.FC<CoinProps> = ({ name, amount }) => {
     const prettyUSD = formatCurrency(thisValUSD, 'USD');
     
     // Calculate USD value using the new utility function
-    const usdValue = calculateCoinUSDValue(name, amount, storedData);
-    const formattedValue = formatCurrency(usdValue, 'USD', 2);
+    // const usdValue = calculateCoinUSDValue(name, amount, storedData);
+    // const formattedValue = formatCurrency(usdValue, 'USD', 2);
     
     return (
-        <div className='border rounded inline-block bg-gray-100 p-1 m-0.5 hover:shadow-md transition-shadow'>
-            <div>
+        <div className='border rounded inline-block bg-gray-100 p-1 m-1 hover:shadow-md transition-shadow bg-gradient-to-t from-gray-300 to-gray-100 '>
+            <div className='text-left'>
                 <span>{prettyAmount} {capsName}</span> 
                 <br/>
                 {usdPerCoin}                 
                 <br/><hr />
-                {prettyUSD}
+                <strong>{prettyUSD}</strong>
                 <br />
-                ₿{thisValBTC}  
-                {/* <br /> */}
-                {/* <strong>🍌</strong>{thisValBANANAS} */}
-                {/* <br /> */}
-                {/* <strong>🥚</strong>{thisValEGGS} */}
+                <strong>₿ {thisValBTC} </strong>
+                <br /><hr />
+                🥇 {thisValGOLD} oz
+                <br />
+                🥈 {thisValSILVER} oz
+                <br /><hr />
+                🥚 {thisValEGGS}
+                <br />
+                🍌 {thisValBANANAS}
             </div>
         </div>
     );
 };
+
+// <tr className='text-left'>
+//     <td>{prettyAmount} {capsName}</td> 
+//     <td>{usdPerCoin}</td>                 
+//     <td><strong>{prettyUSD}</strong></td>
+//     <td><strong>₿ {thisValBTC} </strong></td>
+//     <td>🥇 {thisValGOLD} oz</td>
+//     <td>🥈 {thisValSILVER} oz</td>
+//     <td>🥚 {thisValEGGS}</td>
+//     <td>🍌 {thisValBANANAS}</td>
+// </tr>
 
 export default Coin;
