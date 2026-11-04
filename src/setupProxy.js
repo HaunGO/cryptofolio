@@ -4,11 +4,8 @@ module.exports = function(app) {
   app.use(
     '/api/coingecko',
     createProxyMiddleware({
-      target: 'https://api.coingecko.com',
+      target: 'https://api.coingecko.com/api/v3',
       changeOrigin: true,
-      pathRewrite: {
-        '^/api/coingecko': '/api/v3'
-      }
     })
   );
 };

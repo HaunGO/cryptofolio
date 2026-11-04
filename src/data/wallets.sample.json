@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "Sample Wallet",
+    "description": "Fake demo holdings",
+    "disabled": false,
+    "coins": [
+      {
+        "BTC": 0.25,
+        "ETH": 1.5
+      }
+    ],
+    "coinData": [],
+    "usdValue": 0,
+    "btcValue": 0,
+    "bananaValue": 0
+  }
+]

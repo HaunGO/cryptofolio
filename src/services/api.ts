@@ -2,9 +2,8 @@ import axios from 'axios';
 import { CoinData } from '../types';
 
 // ====================== COINGECKO API ======================
-// Use a CORS proxy to bypass browser restrictions
-export const CORS_PROXY = 'https://corsproxy.io/?';
-export const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
+// Same-origin path. src/setupProxy.js forwards this to CoinGecko in development.
+export const COINGECKO_BASE_URL = '/api/coingecko';
 
 // Simple cache to store API responses
 const apiCache: Record<string, {data: any, timestamp: number}> = {};
@@ -143,7 +142,7 @@ export const fetchAllCoins = async (): Promise<CoinData[]> => {
   
   try {
     console.log('Fetching fresh coin data from API');
-    const url = `${CORS_PROXY}${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1`;
+    const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1`;
     const data = await rateLimitedRequest(url);
     
     const processedData = data.map((coin: any) => ({
@@ -170,7 +169,7 @@ export const getCoinData = async (symbol: string): Promise<any> => {
     const geckoId = mapToGeckoId(symbol);
     console.log(`Fetching CoinGecko data for ${geckoId} (original: ${symbol})`);
     
-    const url = `${CORS_PROXY}${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${geckoId}&price_change_percentage=24h,7d,30d`;
+    const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${geckoId}&price_change_percentage=24h,7d,30d`;
     
     // Use the rate-limited request function
     const data = await rateLimitedRequest(url);
@@ -205,7 +204,7 @@ export const getHistoricalPrices = async (
     const geckoId = mapToGeckoId(symbol);
     console.log(`Fetching historical prices for ${geckoId}, days: ${days}`);
     
-    const url = `${CORS_PROXY}${COINGECKO_BASE_URL}/coins/${geckoId}/market_chart?vs_currency=usd&days=${days}`;
+    const url = `${COINGECKO_BASE_URL}/coins/${geckoId}/market_chart?vs_currency=usd&days=${days}`;
     
     // Use the rate-limited request function
     const data = await rateLimitedRequest(url);
@@ -233,7 +232,7 @@ export const getMultipleCoins = async (symbols: string[]): Promise<any[]> => {
     const geckoIds = symbols.map(mapToGeckoId);
     console.log(`Fetching data for multiple coins: ${geckoIds.join(', ')}`);
     
-    const url = `${CORS_PROXY}${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${geckoIds.join(',')}&price_change_percentage=24h`;
+    const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${geckoIds.join(',')}&price_change_percentage=24h`;
     const data = await rateLimitedRequest(url);
     
     console.log(`Retrieved data for ${data.length} coins`);
@@ -299,7 +298,7 @@ export const initializeAppData = async (): Promise<boolean> => {
   
   try {
     // Get top coins with ALL the data we need in ONE call
-    const url = `${CORS_PROXY}${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&price_change_percentage=24h,7d,30d`;
+    const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&price_change_percentage=24h,7d,30d`;
     
     console.log('Making single API call to get all coin data');
     const data = await rateLimitedRequest(url);

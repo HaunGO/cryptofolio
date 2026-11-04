@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import Wallet from './Wallet';
 import { Billfolds } from '../atoms';
+// import Dashboard from './Dashboard'
 
 interface Holding {
   name: string;
@@ -43,6 +44,7 @@ const Portfolio: React.FC = () => {
     
     return (
         <div className="relative flex flex-col min-h-screen p-4">
+            {/* <Dashboard /> */}
             {/* Portfolio Summary */}
             <div className="rounded-xl shadow-lg p-6 mb-8 bg-gradient-to-b from-blue-50 to-white">
                 <div className="flex justify-between items-center mb-6">

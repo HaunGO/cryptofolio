@@ -9,7 +9,8 @@ import {
 import Portfolio from './components/Portfolio';
 import { Wallet as WalletType } from './types';
 import './App.css';
-import walletsDataRaw from './private/wallets.private.json';
+// Sample data only. Real holdings live in src/private/ (gitignored). Do not commit an import of that file.
+import walletsDataRaw from './data/wallets.sample.json';
 import { formatCurrency, getEggTotal, getGoldTotal, getSilverTotal } from './utils/utils';
 
 const walletsData = walletsDataRaw as WalletType[];
