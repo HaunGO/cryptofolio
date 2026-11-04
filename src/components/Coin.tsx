@@ -76,9 +76,9 @@ const Coin: React.FC<CoinProps> = ({ name, amount }) => {
                 <br />
                 <strong>₿ {thisValBTC} </strong>
                 <br /><hr />
-                🥇 {thisValGOLD} oz
+                🟡 {thisValGOLD} oz
                 <br />
-                🥈 {thisValSILVER} oz
+                🪙 {thisValSILVER} oz
                 <br /><hr />
                 🥚 {thisValEGGS}
                 <br />

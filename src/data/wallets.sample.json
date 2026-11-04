@@ -1,13 +1,83 @@
 [
   {
     "id": 1,
-    "name": "Sample Wallet",
-    "description": "Fake demo holdings",
+    "name": "Cold Storage",
+    "description": "Long-term majors",
     "disabled": false,
     "coins": [
       {
-        "BTC": 0.25,
-        "ETH": 1.5
+        "BTC": 0.15,
+        "ETH": 2,
+        "LTC": 8
+      }
+    ],
+    "coinData": [],
+    "usdValue": 0,
+    "btcValue": 0,
+    "bananaValue": 0
+  },
+  {
+    "id": 2,
+    "name": "Active Trading",
+    "description": "Higher-beta alts",
+    "disabled": false,
+    "coins": [
+      {
+        "SOL": 12,
+        "AVAX": 25,
+        "LINK": 40,
+        "UNI": 15,
+        "DOT": 60
+      }
+    ],
+    "coinData": [],
+    "usdValue": 0,
+    "btcValue": 0,
+    "bananaValue": 0
+  },
+  {
+    "id": 3,
+    "name": "Spending Cash",
+    "description": "Cash plus payment coins",
+    "disabled": false,
+    "coins": [
+      {
+        "USD": 2500,
+        "XRP": 800,
+        "ADA": 1500,
+        "BNB": 1.2
+      }
+    ],
+    "coinData": [],
+    "usdValue": 0,
+    "btcValue": 0,
+    "bananaValue": 0
+  },
+  {
+    "id": 4,
+    "name": "Meme Drawer",
+    "description": "Small speculative bag",
+    "disabled": false,
+    "coins": [
+      {
+        "DOGE": 5000,
+        "SHIB": 8000000
+      }
+    ],
+    "coinData": [],
+    "usdValue": 0,
+    "btcValue": 0,
+    "bananaValue": 0
+  },
+  {
+    "id": 5,
+    "name": "Archived",
+    "description": "Disabled sample wallet",
+    "disabled": true,
+    "coins": [
+      {
+        "TRX": 4000,
+        "TON": 20
       }
     ],
     "coinData": [],

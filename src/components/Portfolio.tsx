@@ -114,20 +114,20 @@ const Portfolio: React.FC = () => {
                         <h3 className="text-lg font-medium text-gray-600 mb-1">Alternative Values</h3>
                         <div className="flex flex-col gap-2 mt-2">
                             <div className="flex justify-start items-center">
+                                <span className="text-xl">🟡</span>
+                                <span className="text-xl font-medium pl-3">{portfolioTotals.gold?.toLocaleString() || '0.0000'} oz gold</span>
+                            </div>
+                            <div className="flex justify-start items-center">
+                                <span className="text-xl">🪙</span>
+                                <span className="text-xl font-medium pl-3">{portfolioTotals.silver?.toLocaleString() || '0.00'} oz silver</span>
+                            </div>
+                            <div className="flex justify-start items-center">
                                 <span className="text-xl">🥚</span>
                                 <span className="text-xl font-medium pl-3">{portfolioTotals.eggs?.toLocaleString() || 0} eggs</span>
                             </div>
                             <div className="flex justify-start items-center">
                                 <span className="text-xl">🍌</span>
                                 <span className="text-xl font-medium pl-3">{portfolioTotals.bananas?.toLocaleString() || 0} bananas</span>
-                            </div>
-                            <div className="flex justify-start items-center">
-                                <span className="text-xl">🥇</span>
-                                <span className="text-xl font-medium pl-3">{portfolioTotals.gold?.toLocaleString() || '0.0000'} oz gold</span>
-                            </div>
-                            <div className="flex justify-start items-center">
-                                <span className="text-xl">🥈</span>
-                                <span className="text-xl font-medium pl-3">{portfolioTotals.silver?.toLocaleString() || '0.00'} oz silver</span>
                             </div>
                         </div>
                     </div>
