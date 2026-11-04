@@ -2,8 +2,11 @@ import axios from 'axios';
 import { CoinData } from '../types';
 
 // ====================== COINGECKO API ======================
-// Same-origin path. src/setupProxy.js forwards this to CoinGecko in development.
-export const COINGECKO_BASE_URL = '/api/coingecko';
+// Development uses the same-origin proxy in src/setupProxy.js.
+// Production (GitHub Pages) calls CoinGecko directly; that API allows browser CORS.
+export const COINGECKO_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://api.coingecko.com/api/v3'
+  : '/api/coingecko';
 
 // Simple cache to store API responses
 const apiCache: Record<string, {data: any, timestamp: number}> = {};
